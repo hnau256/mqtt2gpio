@@ -1,0 +1,21 @@
+<svg width="100%" viewBox="0 0 100 50">
+    <polyline points="0 0 100 50" stroke="white" />
+    <text alignment-baseline="hanging" text-anchor="start" x="0" y="0">
+        123
+    </text>
+    <text alignment-baseline="hanging" text-anchor="middle" x="50" y="0">
+        123
+    </text>
+    <text alignment-baseline="hanging" text-anchor="end" x="100" y="0">
+        123
+    </text>
+    <text alignment-baseline="baseline" text-anchor="start" x="0" y="50">
+        123
+    </text>
+    <text alignment-baseline="baseline" text-anchor="middle" x="50" y="50">
+        123
+    </text>
+    <text alignment-baseline="baseline" text-anchor="end" x="100" y="50">
+        123
+    </text>
+</svg>

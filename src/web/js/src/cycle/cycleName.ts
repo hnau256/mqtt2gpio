@@ -1,0 +1,1 @@
+type CycleName = string
