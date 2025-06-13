@@ -18,6 +18,7 @@ def build_index_html_content(
         web_dir: str,
 ) -> str:
     generated_dir = web_dir + "generated/"
+    os.makedirs(generated_dir, exist_ok=True)
     index_html_file = generated_dir + "index.html"
     src_dir = web_dir + "src/"
     js_dir = web_dir + "js/"
@@ -40,6 +41,7 @@ def build_index_html_content(
             js_dir: str,
     ) -> str:
         generated_dir = js_dir + "generated/"
+        os.makedirs(generated_dir, exist_ok=True)
         main_js_file_name = "main.js"
         main_js_file = generated_dir + main_js_file_name
 
@@ -83,6 +85,7 @@ def fill_index_html_hpp(
         generated_dir: str,
         index_html_content: str,
 ):
+    os.makedirs(generated_dir, exist_ok=True)
     hpp_key = "index_html"
     hpp_file = generated_dir + "/index_html.hpp"
 
