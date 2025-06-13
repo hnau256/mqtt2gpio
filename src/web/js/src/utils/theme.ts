@@ -8,23 +8,23 @@ export enum Theme { Light, Dark }
 export function createThemeObservable(): StateObservable<Theme> {
     let matchMedia = window.matchMedia
     if (!matchMedia) {
-        return new SingleStateObservable({ value: Theme.Light })
+        return new SingleStateObservable(Theme.Light)
     }
     let query = matchMedia('(prefers-color-scheme: dark)')
     let resolveCurrentTheme: () => Theme = () => query.matches ? Theme.Dark : Theme.Light
-    let updates = new CallbackObservable({
-        observer: (lifescopeWithCallback) => {
-            let listener: () => void = () => lifescopeWithCallback.callback(resolveCurrentTheme())
+    let updates = new CallbackObservable<Theme>(
+         (lifescope, callback) => {
+            let listener: () => void = () => callback(resolveCurrentTheme())
             query.addEventListener(changeEventListenerTypeName, listener)
-            lifescopeWithCallback.lifeScope.onCancel({
-                callback: () => query.removeEventListener(changeEventListenerTypeName, listener)
-            })
+            lifescope.onCancel(
+                () => query.removeEventListener(changeEventListenerTypeName, listener)
+            )
         }
-    })
-    return new SimpleStateObservableImpl<Theme>({
-        source: updates,
-        initialValue: resolveCurrentTheme(),
-    })
+    )
+    return new SimpleStateObservableImpl<Theme>(
+        resolveCurrentTheme(),
+        updates,
+    )
 }
 
 const changeEventListenerTypeName = "change"

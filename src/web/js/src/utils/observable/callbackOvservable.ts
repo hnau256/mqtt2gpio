@@ -3,25 +3,18 @@ import { Observable } from "./observable";
 
 export class CallbackObservable<T> implements Observable<T> {
 
-    private _observer: (args: { lifeScope: LifeScope, callback: (value: T) => void }) => void
+    private _observer: ( lifeScope: LifeScope, callback: (value: T) => void ) => void
 
     constructor(
-        args: {
-            observer: (args: { lifeScope: LifeScope, callback: (value: T) => void }) => void
-        }
+            observer: (lifeScope: LifeScope, callback: (value: T) => void ) => void
     ) {
-        this._observer = args.observer
+        this._observer = observer
     }
 
     observe(
-        args: {
-            lifeScope: LifeScope;
-            callback: (value: T) => void;
-        }
+            lifeScope: LifeScope,
+            callback: (value: T) => void,
     ): void {
-        this._observer({
-            lifeScope: args.lifeScope,
-            callback: args.callback,
-        })
+        this._observer(lifeScope, callback)
     }
 }

@@ -9,13 +9,11 @@ export class SimpleStateObservableImpl<T> implements StateObservable<T> {
     private source: Observable<T>
 
     constructor(
-        args: {
             initialValue: T,
             source: Observable<T>,
-        }
     ) {
-        this._value = args.initialValue
-        this.source = args.source
+        this._value = initialValue
+        this.source = source
     }
 
     get value(): T {
@@ -23,18 +21,16 @@ export class SimpleStateObservableImpl<T> implements StateObservable<T> {
     }
 
     observe(
-        args: {
-            lifeScope: LifeScope;
-            callback: (value: T) => void;
-        }
+            lifeScope: LifeScope,
+            callback: (value: T) => void,
     ): void {
-        args.callback(this._value)
-        this.source.observe({
-            lifeScope: args.lifeScope,
-            callback: (value: T) => {
+        callback(this._value)
+        this.source.observe(
+             lifeScope,
+            (value: T) => {
                 this._value = value
-                args.callback(value)
+                callback(value)
             }
-        })
+        )
     }
 }

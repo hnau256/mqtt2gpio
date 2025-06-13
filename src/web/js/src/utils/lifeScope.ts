@@ -1,16 +1,14 @@
 export interface LifeScope {
 
     onCancel(
-        args: {
-            callback: () => void
-        }
+            callback: () => void,
     ): void
 }
 
 export let ImmortalLifeScope: LifeScope = {
-    onCancel: function (args: {
+    onCancel: function (
         callback: () => void
-    }): void { }
+    ): void { }
 }
 
 export class CancellableLifeScope implements LifeScope {
@@ -20,14 +18,12 @@ export class CancellableLifeScope implements LifeScope {
     callbacks: Array<() => void> = []
 
     onCancel(
-        args: {
-            callback: () => void
-        }
+            callback: () => void,
     ): void {
         if (this.isCancelled) {
-            args.callback()
+            callback()
         } else {
-            this.callbacks.push(args.callback);
+            this.callbacks.push(callback);
         }
     }
 

@@ -10,20 +10,18 @@ export class InProgressRegistry {
     private nextIndex: number = 0
 
     private activeIndexes: MutableStateObservable<number[]> =
-        new MutableStateObservableImpl({ initialValue: [] })
+        new MutableStateObservableImpl([])
 
     private _inProgress: StateObservable<boolean>
 
     constructor(
-        args: {
             lifeScope: LifeScope,
-        }
     ) {
-        this._inProgress = StateObservableExt.map({
-            source: this.activeIndexes,
-            lifeScope: args.lifeScope,
-            transform: (indexes) => indexes.length > 0
-        })
+        this._inProgress = StateObservableExt.map(
+            this.activeIndexes,
+            lifeScope,
+            (indexes) => indexes.length > 0
+        )
     }
 
     get inProgress(): StateObservable<boolean> {
@@ -31,25 +29,23 @@ export class InProgressRegistry {
     }
 
     register(
-        args: {
-            promise: Promise<any>
-        }
+            promise: Promise<any>,
     ) {
         let index = this.nextIndex++
-        MutableStateObservableExt.update({
-            observable: this.activeIndexes,
-            update: (value) => {
+        MutableStateObservableExt.update(
+            this.activeIndexes,
+             (value) => {
                 return [...value, index]
-            }
-        })
-        args.promise.then(
+             }
+        )
+        promise.then(
             (_) => {
-                MutableStateObservableExt.update({
-                    observable: this.activeIndexes,
-                    update: (value) => {
+                MutableStateObservableExt.update(
+                    this.activeIndexes,
+                    (value) => {
                         return value.filter((number) => number !== index)
                     }
-                })
+                )
             }
         )
     }

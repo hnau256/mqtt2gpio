@@ -9,25 +9,21 @@ export class MutableStateObservableImpl<T> {
     private callbacks: Map<Number, (value: T) => void> = new Map()
 
     constructor(
-        args: {
             initialValue: T
-        }
     ) {
-        this._value = args.initialValue;
+        this._value = initialValue;
     }
 
     observe(
-        args: {
             lifeScope: LifeScope,
             callback: (value: T) => void,
-        }
     ): void {
         let index = this.callbackIndex++;
-        this.callbacks.set(index, args.callback);
-        args.lifeScope.onCancel({
-            callback: () => { this.callbacks.delete(index) }
-        })
-        args.callback(this._value);
+        this.callbacks.set(index, callback);
+        lifeScope.onCancel(
+            () => { this.callbacks.delete(index) }
+        )
+        callback(this._value);
     }
 
     get value(): T {

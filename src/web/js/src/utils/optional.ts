@@ -1,29 +1,25 @@
 export abstract class Optional<T> {
 
     fold<R>(
-        args: {
             ifNone: () => R,
             ifSome: (value: T) => R,
-        }
     ): R {
         if (this instanceof None) {
-            return args.ifNone()
+            return ifNone()
         }
         if (this instanceof Some) {
-            return args.ifSome(this.value)
+            return ifSome(this.value)
         }
         throw new Error("Unexpected type");
     }
 
     map<O>(
-        args: {
             transform: (value: T) => O,
-        }
     ): Optional<O> {
-        return this.fold({
-            ifNone: () => None.instance,
-            ifSome: (value: T) => new Some({ value: args.transform(value) })
-        })
+        return this.fold<Optional<O>>(
+            () => None.instance,
+            (value: T) => new Some(transform(value)),
+        )
     }
 }
 
@@ -36,13 +32,11 @@ export class Some<T> extends Optional<T> {
     private _value: T
 
     constructor(
-        args: {
             value: T
-        }
     ) {
         super();
 
-        this._value = args.value
+        this._value = value
     }
 
     public get value(): T {
