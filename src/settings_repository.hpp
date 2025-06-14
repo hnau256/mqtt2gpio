@@ -8,7 +8,7 @@ class SettingsRepository {
 public:
   void init();
   const Settings& getSettings() const;
-  bool saveSettings(const String& jsonString);
+  bool saveSettings(const Settings& newSettings);
 
 private:
   Settings settings;

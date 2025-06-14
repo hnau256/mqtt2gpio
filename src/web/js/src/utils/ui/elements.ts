@@ -21,8 +21,8 @@ export function setIsLoading(
 }
 
 export function setLoading(
-        element: Element,
         lifeScope: LifeScope,
+        element: Element,
         loading: StateObservable<boolean>,
 ) {
     loading.observe(

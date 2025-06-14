@@ -29,9 +29,8 @@ const Settings& SettingsRepository::getSettings() const {
   return settings;
 }
 
-bool SettingsRepository::saveSettings(const String& jsonString) {
-  Settings newSettings(jsonString);
-
+bool SettingsRepository::saveSettings(const Settings& newSettings) {
+  String jsonString = newSettings.toJson();
   File file = LittleFS.open(SETTINGS_FILENAME, "w");
   if (!file) {
     Serial.println("Failed to open settings.json for writing");
