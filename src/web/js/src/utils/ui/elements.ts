@@ -101,6 +101,17 @@ export function createDiv(
     return result
 }
 
+export function createGroup(
+        children?: Node[],
+): Element {
+    let result = createElement("fieldset")
+    result.role = "group"
+    children?.forEach((child) => {
+        result.appendChild(child)
+    })
+    return result
+}
+
 export function createArticle(
         children?: Node[]
 ): Element {

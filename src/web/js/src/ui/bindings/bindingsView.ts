@@ -1,6 +1,6 @@
-import { Binding, BindingDirection, BindingType } from "../data/settings";
-import { CancellableLifeScope, LifeScope } from "../utils/lifeScope";
-import { createDiv } from "../utils/ui/elements";
+import { Binding, BindingDirection, BindingType } from "../../data/settings";
+import { CancellableLifeScope, LifeScope } from "../../utils/lifeScope";
+import { createDiv } from "../../utils/ui/elements";
 import { BindingView } from "./bindingView";
 
 export class BindingsView {

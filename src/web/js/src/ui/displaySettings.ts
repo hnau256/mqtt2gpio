@@ -9,10 +9,15 @@ import { PromiseExt } from "../utils/promiseExt";
 import { displayErrorPanel } from "../utils/ui/displayErrorPanel";
 import { displayLoadingPanel } from "../utils/ui/displayLoadingPanel";
 import { displayState } from "../utils/ui/displayState";
-import { ButtonLevel, createArticle, createButton, createDiv, createElement, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
+import { ButtonLevel, createArticle, createButton, createDiv, createElement, createGroup, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
 import { MessageDisplayer } from "../utils/ui/message/messagesDisplayer";
-import { BindingsView } from "./bindingsView";
+import { BindingsView } from "./bindings/bindingsView";
 import { Input } from "./input";
+import { Tab } from "./tab/tab";
+import { TabBindings } from "./tab/tabBindings";
+import { displayTabButton } from "./tab/tabButton";
+import { TabMqtt } from "./tab/tabMqtt";
+import { TabOther } from "./tab/tabOther";
 
 export function displaySettings(
     lifeScope: LifeScope,
@@ -21,113 +26,94 @@ export function displaySettings(
     messagesDisplayer: MessageDisplayer,
 ): Element {
 
-    let mdnsName = new Input<string>(
-        "MDNS name",
-        "mdns_name",
-        "text",
-        settings.mdns_name,
-        (raw) => { return raw },
-    );
-
-    let mqttAddress = new Input<string>(
-        "MQTT address",
-        "mqtt_address",
-        "url",
-        settings.mqtt.address,
-        (raw) => { return raw },
-    );
-
-    let mqttPort = new Input<number>(
-        "MQTT port",
-        "mqtt_port",
-        "number",
-        settings.mqtt.port.toString(),
-        (raw) => { return parseInt(raw) },
-    );
-
-    let mqttUser = new Input<string>(
-        "MQTT user",
-        "mqtt_user",
-        "text",
-        settings.mqtt.user,
-        (raw) => { return raw },
-    );
-
-    let mqttPassword = new Input<string>(
-        "MQTT password",
-        "mqtt_password",
-        "password",
-        settings.mqtt.password,
-        (raw) => { return raw },
-    );
-
-    let bindings = new BindingsView(
+    let tabBindings = new TabBindings(
         lifeScope,
         settings.bindings,
     )
 
+    let tabMqtt = new TabMqtt(
+        lifeScope,
+        settings.mqtt,
+    )
+
+    let tabOther = new TabOther(
+        lifeScope,
+        settings.mdns_name,
+    )
+
+    let tabHolder = createDiv();
+
+    let selectedTab = new MutableStateObservableImpl(Tab.Bindings)
+
     let header = createDiv(
         [
-            createButton(
-                "Bindings", 
-                () => {},
-                ButtonLevel.Secondary,
-                true,
+            createGroup(
+                [
+                    displaySaveButton(
+                        lifeScope,
+                        repository,
+                        messagesDisplayer,
+                        () => {
+                            return {
+                                mdns_name: tabOther.mdnsName,
+                                mqtt: tabMqtt.mqttSettings,
+                                bindings: tabBindings.bindings,
+                            }
+                        }
+                    )
+                ]
             ),
-            createButton(
-                "Mqtt", 
-                () => {},
-                ButtonLevel.Secondary,
-                false,
-            ),
-            createButton(
-                "Other", 
-                () => {},
-                ButtonLevel.Secondary,
-                true,
-            ),
-            createButton(
-                "Save", 
-                () => {},
+            createGroup(
+                [
+                    displayTabButton(
+                        lifeScope,
+                        "Bindings",
+                        Tab.Bindings,
+                        selectedTab,
+                    ),
+                    displayTabButton(
+                        lifeScope,
+                        "MQTT",
+                        Tab.Mqtt,
+                        selectedTab,
+                    ),
+                    displayTabButton(
+                        lifeScope,
+                        "Other",
+                        Tab.Other,
+                        selectedTab,
+                    )
+                ]
             ),
         ]
     )
     header.className = "grid"
 
+    tabHolder = createDiv()
+
+    selectedTab.observe(
+        lifeScope,
+        tab => {
+            let element: Element
+            switch (tab) {
+                case Tab.Bindings:
+                    element = tabBindings.element;
+                    break;
+                case Tab.Mqtt:
+                    element = tabMqtt.element;
+                    break;
+                case Tab.Other:
+                    element = tabOther.element;
+                    break;
+            }
+            tabHolder.replaceChildren(element);
+        }
+    )
+
     return createDiv(
         [
             header,
-            displaySaveButton(
-                lifeScope,
-                repository,
-                messagesDisplayer,
-                () => {
-                    return {
-                        mdns_name: mdnsName.value,
-                        mqtt: {
-                            address: mqttAddress.value,
-                            port: mqttPort.value,
-                            user: mqttUser.value,
-                            password: mqttPassword.value,
-                        },
-                        bindings: [],
-                    }
-                }
-            ),
-            mdnsName.element,
-            createArticle(
-                [
-                    mqttAddress.element,
-                    mqttPort.element,
-                    mqttUser.element,
-                    mqttPassword.element,
-                ]
-            ),
-            bindings.element,
-            createButton(
-                "Add binding",
-                () => bindings.addBinding(),
-            ),
+            tabHolder,
         ]
     );
 }
