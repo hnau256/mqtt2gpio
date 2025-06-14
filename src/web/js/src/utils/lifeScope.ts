@@ -1,7 +1,7 @@
 export interface LifeScope {
 
     onCancel(
-            callback: () => void,
+        callback: () => void,
     ): void
 }
 
@@ -18,7 +18,7 @@ export class CancellableLifeScope implements LifeScope {
     callbacks: Array<() => void> = []
 
     onCancel(
-            callback: () => void,
+        callback: () => void,
     ): void {
         if (this.isCancelled) {
             callback()
@@ -28,8 +28,21 @@ export class CancellableLifeScope implements LifeScope {
     }
 
     cancel() {
+        if (this.isCancelled) {
+            return
+        }
         this.isCancelled = true
         this.callbacks.forEach((callback) => { callback() })
         this.callbacks.length = 0;
+    }
+
+    static create(
+        parent: LifeScope,
+    ): CancellableLifeScope {
+        let result = new CancellableLifeScope()
+        parent.onCancel(
+            () => { result.cancel() }
+        )
+        return result
     }
 }

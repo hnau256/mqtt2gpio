@@ -9,8 +9,10 @@ import { PromiseExt } from "../utils/promiseExt";
 import { displayErrorPanel } from "../utils/ui/displayErrorPanel";
 import { displayLoadingPanel } from "../utils/ui/displayLoadingPanel";
 import { displayState } from "../utils/ui/displayState";
-import { createArticle, createButton, createDiv, createElement, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
+import { ButtonLevel, createArticle, createButton, createDiv, createElement, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
 import { MessageDisplayer } from "../utils/ui/message/messagesDisplayer";
+import { BindingsView } from "./bindingsView";
+import { Input } from "./input";
 
 export function displaySettings(
     lifeScope: LifeScope,
@@ -59,20 +61,88 @@ export function displaySettings(
         (raw) => { return raw },
     );
 
+    let bindings = new BindingsView(
+        lifeScope,
+        settings.bindings,
+    )
+
+    let header = createDiv(
+        [
+            createButton(
+                "Bindings", 
+                () => {},
+                ButtonLevel.Secondary,
+                true,
+            ),
+            createButton(
+                "Mqtt", 
+                () => {},
+                ButtonLevel.Secondary,
+                false,
+            ),
+            createButton(
+                "Other", 
+                () => {},
+                ButtonLevel.Secondary,
+                true,
+            ),
+            createButton(
+                "Save", 
+                () => {},
+            ),
+        ]
+    )
+    header.className = "grid"
+
+    return createDiv(
+        [
+            header,
+            displaySaveButton(
+                lifeScope,
+                repository,
+                messagesDisplayer,
+                () => {
+                    return {
+                        mdns_name: mdnsName.value,
+                        mqtt: {
+                            address: mqttAddress.value,
+                            port: mqttPort.value,
+                            user: mqttUser.value,
+                            password: mqttPassword.value,
+                        },
+                        bindings: [],
+                    }
+                }
+            ),
+            mdnsName.element,
+            createArticle(
+                [
+                    mqttAddress.element,
+                    mqttPort.element,
+                    mqttUser.element,
+                    mqttPassword.element,
+                ]
+            ),
+            bindings.element,
+            createButton(
+                "Add binding",
+                () => bindings.addBinding(),
+            ),
+        ]
+    );
+}
+
+function displaySaveButton(
+    lifeScope: LifeScope,
+    repository: Repository,
+    messagesDisplayer: MessageDisplayer,
+    collectNewSettings: () => Settings,
+) {
     let isSaving = new InProgressRegistry(lifeScope);
     let saveButton = createButton(
         "Save and restart",
         () => {
-            let newSettings: Settings = {
-                mdns_name: mdnsName.value,
-                mqtt: {
-                    address: mqttAddress.value,
-                    port: mqttPort.value,
-                    user: mqttUser.value,
-                    password: mqttPassword.value,
-                },
-                bindings: [],
-            }
+            let newSettings: Settings = collectNewSettings()
             let savePromise = repository.setSettingsAndRestart(newSettings);
             isSaving.register(savePromise)
             PromiseExt.awaitPromise(
@@ -96,54 +166,5 @@ export function displaySettings(
         saveButton,
         isSaving.inProgress,
     )
-    return createDiv(
-        [
-            mdnsName.element,
-            createArticle(
-                [
-                    mqttAddress.element,
-                    mqttPort.element,
-                    mqttUser.element,
-                    mqttPassword.element,
-                ]
-            ),
-            saveButton,
-        ]
-    );
-}
-
-class Input<T> {
-    private input: HTMLInputElement;
-    private decoder: (raw: string) => T;
-
-    element: Element;
-
-    constructor(
-        title: string,
-        id: string,
-        type: string,
-        initial: string,
-        decoder: (raw: string) => T,
-    ) {
-        this.decoder = decoder;
-        let input = document.createElement("input");
-        this.input = input;
-        input.setAttribute("id", id);
-        input.setAttribute("type", type);
-        input.setAttribute("value", initial);
-        this.element = createDiv(
-            [
-                createLabel(
-                    id,
-                    [createText(title)]
-                ),
-                input,
-            ]
-        )
-    }
-
-    public get value(): T {
-        let raw: string = this.input.value;
-        return this.decoder(raw);
-    }
+    return saveButton
 }
