@@ -10,7 +10,7 @@ import { PromiseExt } from "../../utils/promiseExt";
 import { displayErrorPanel } from "../../utils/ui/displayErrorPanel";
 import { displayLoadingPanel } from "../../utils/ui/displayLoadingPanel";
 import { displayState } from "../../utils/ui/displayState";
-import { ButtonLevel, createA, createArticle, createButton, createDiv, createElement, createGroup, createHeader, createLabel, createLabelWithElement, createText, setLoading } from "../../utils/ui/elements";
+import { ButtonLevel, createA, createArticle, createButton, createDiv, createGroup, createHeader, createLabel, createLabelWithElement, createText, setLoading } from "../../utils/ui/elements";
 import { MessageDisplayer } from "../../utils/ui/message/messagesDisplayer";
 import { SelectView } from "../../utils/ui/selectView";
 import { Input } from "../input";

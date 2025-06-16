@@ -2,12 +2,6 @@ import { LifeScope } from "../lifeScope";
 import { Observable } from "../observable/observable";
 import { StateObservable } from "../observable/state/stateObservable";
 
-export function createElement(
-    name: string
-): Element {
-    return document.createElement(name)
-}
-
 export function setIsLoading(
     element: Element,
     isLoading: boolean,
@@ -38,11 +32,11 @@ export function createDetails(
     isOpened?: boolean,
     content?: Node[],
 ): Element {
-    let result = createElement("details")
+    let result = document.createElement("details")
     if (isOpened ?? false) {
         result.toggleAttribute("open", true)
     }
-    let summaryElement = createElement("summary")
+    let summaryElement = document.createElement("summary")
     summaryElement.textContent = summary
     result.appendChild(summaryElement)
     result.append(...(content ?? []))
@@ -53,7 +47,7 @@ export function createLabel(
     forId: string,
     children?: Node[],
 ): Element {
-    let result = createElement("label")
+    let result = document.createElement("label")
     result.setAttribute("for", forId)
     result.append(...(children ?? []))
     return result
@@ -82,7 +76,7 @@ export function createSwitch(
     onStateChanged: (isChecked: boolean) => void,
     id?: string,
 ): Element {
-    let result = createElement("input") as HTMLInputElement
+    let result = document.createElement("input") as HTMLInputElement
     result.setAttribute("type", "checkbox")
     result.setAttribute("role", "switch")
     if (id) {
@@ -103,7 +97,7 @@ export function createHeader(
     level: Number,
     text: string,
 ): Element {
-    let result = createElement(`h${level}`);
+    let result = document.createElement(`h${level}`);
     result.textContent = text;
     return result
 }
@@ -111,7 +105,7 @@ export function createHeader(
 export function createDiv(
     children?: Node[],
 ): Element {
-    let result = createElement("div")
+    let result = document.createElement("div")
     children?.forEach((child) => {
         result.appendChild(child)
     })
@@ -121,7 +115,7 @@ export function createDiv(
 export function createGroup(
     children?: Node[],
 ): Element {
-    let result = createElement("fieldset")
+    let result = document.createElement("fieldset")
     result.role = "group"
     children?.forEach((child) => {
         result.appendChild(child)
@@ -132,7 +126,7 @@ export function createGroup(
 export function createArticle(
     children?: Node[]
 ): Element {
-    let result = createElement("article");
+    let result = document.createElement("article");
     result.append(...(children ?? []))
     return result;
 }
@@ -146,7 +140,7 @@ export function createText(
 export function createParagraph(
     text: string,
 ): Element {
-    let result = createElement("p");
+    let result = document.createElement("p");
     result.textContent = text;
     return result
 }
@@ -169,7 +163,7 @@ export function createButton(
     level?: ButtonLevel,
     outline?: boolean,
 ): Element {
-    let result = createElement("button") as HTMLButtonElement;
+    let result = document.createElement("button") as HTMLButtonElement;
     switch (level ?? ButtonLevel.Primary) {
         case ButtonLevel.Secondary:
             result.classList.add("secondary");

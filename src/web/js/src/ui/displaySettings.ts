@@ -9,7 +9,7 @@ import { PromiseExt } from "../utils/promiseExt";
 import { displayErrorPanel } from "../utils/ui/displayErrorPanel";
 import { displayLoadingPanel } from "../utils/ui/displayLoadingPanel";
 import { displayState } from "../utils/ui/displayState";
-import { ButtonLevel, createArticle, createButton, createDiv, createElement, createGroup, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
+import { ButtonLevel, createArticle, createButton, createDiv, createGroup, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
 import { MessageDisplayer } from "../utils/ui/message/messagesDisplayer";
 import { Input } from "./input";
 import { Tab } from "./tab/tab";
