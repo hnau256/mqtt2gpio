@@ -7,7 +7,7 @@ MqttSettings::MqttSettings(const JsonObject& obj) {
   port = obj[JsonKeys::PORT] | SettingsDefaults::MQTT_PORT;
   user = obj[JsonKeys::USER] | String("");
   password = obj[JsonKeys::PASSWORD] | String("");
-  userId = obj[JsonKeys::USER_ID] | String("");
+  clientId = obj[JsonKeys::CLIENT_ID] | String("");
 }
 
 void MqttSettings::toJson(JsonObject& obj) const {
@@ -15,7 +15,35 @@ void MqttSettings::toJson(JsonObject& obj) const {
   obj[JsonKeys::PORT] = port;
   obj[JsonKeys::USER] = user;
   obj[JsonKeys::PASSWORD] = password;
-  obj[JsonKeys::USER_ID] = userId;
+  obj[JsonKeys::CLIENT_ID] = clientId;
+}
+
+bool MqttSettings::fromJson(const JsonObject& obj) {
+
+  String address = obj[JsonKeys::ADDRESS] | "";
+  if (address.isEmpty()) {
+    Serial.println("Unable parse MQTT settings: no address defined");
+    return false;
+  }
+  
+  uint16_t port = obj[JsonKeys::PORT] | 0;
+  if (port < 1) {
+    Serial.println("Unable parse MQTT settings: no port defined");
+    return false;
+  }
+
+  String clientId = obj[JsonKeys::CLIENT_ID] | "";
+  if (clientId.isEmpty()) {
+    Serial.println("Unable parse MQTT settings: no client id defined");
+    return false;
+  }
+
+  this->address = address;
+  this->port = port;
+  this->user = obj[JsonKeys::USER] | "";
+  this->password = obj[JsonKeys::PASSWORD] | "";
+  this->clientId = clientId;
+  return true;
 }
 
 Binding::Binding() : type(MqttType::BOOL), pin(0), topic(""), direction(MqttDirection::SUBSCRIBE) {}

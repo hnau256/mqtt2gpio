@@ -18,7 +18,7 @@ namespace JsonKeys {
   const char* const PORT = "port";
   const char* const USER = "user";
   const char* const PASSWORD = "password";
-  const char* const USER_ID = "user_id";
+  const char* const CLIENT_ID = "user_id";
   const char* const BINDINGS = "bindings";
   const char* const TYPE = "type";
   const char* const PIN = "pin";
@@ -52,11 +52,12 @@ public:
   uint16_t port;
   String user;
   String password;
-  String userId;
+  String clientId;
 
   MqttSettings();
   MqttSettings(const JsonObject& obj);
   void toJson(JsonObject& obj) const;
+  bool fromJson(const JsonObject& obj);
 };
 
 class Binding {
