@@ -156,12 +156,12 @@ String Settings::toJson() const {
   JsonDocument doc;
   doc[JsonKeys::MDNS_NAME] = mdnsName;
 
-  JsonObject mqttObj = doc.createNestedObject(JsonKeys::MQTT);
+  JsonObject mqttObj = doc[JsonKeys::MQTT].to<JsonObject>();
   mqtt.toJson(mqttObj);
 
-  JsonArray bindingsArray = doc.createNestedArray(JsonKeys::BINDINGS);
+  JsonArray bindingsArray = doc[JsonKeys::BINDINGS].to<JsonArray>();
   for (const Binding &binding : bindings) {
-    JsonObject bindingObj = bindingsArray.createNestedObject();
+    JsonObject bindingObj = bindingsArray.add<JsonObject>();
     binding.toJson(bindingObj);
   }
 
