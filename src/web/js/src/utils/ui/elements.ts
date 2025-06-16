@@ -3,14 +3,14 @@ import { Observable } from "../observable/observable";
 import { StateObservable } from "../observable/state/stateObservable";
 
 export function createElement(
-        name: string
+    name: string
 ): Element {
     return document.createElement(name)
 }
 
 export function setIsLoading(
-        element: Element,
-        isLoading: boolean,
+    element: Element,
+    isLoading: boolean,
 ) {
     element.setAttribute(
         "aria-busy",
@@ -21,22 +21,22 @@ export function setIsLoading(
 }
 
 export function setLoading(
-        lifeScope: LifeScope,
-        element: Element,
-        loading: StateObservable<boolean>,
+    lifeScope: LifeScope,
+    element: Element,
+    loading: StateObservable<boolean>,
 ) {
     loading.observe(
         lifeScope,
         (isLoading) => {
-            setIsLoading( element, isLoading)
+            setIsLoading(element, isLoading)
         }
     )
 }
 
 export function createDetails(
-        summary: string,
-        isOpened?: boolean,
-        content?: Node[],
+    summary: string,
+    isOpened?: boolean,
+    content?: Node[],
 ): Element {
     let result = createElement("details")
     if (isOpened ?? false) {
@@ -50,8 +50,8 @@ export function createDetails(
 }
 
 export function createLabel(
-        forId: string,
-        children?: Node[],
+    forId: string,
+    children?: Node[],
 ): Element {
     let result = createElement("label")
     result.setAttribute("for", forId)
@@ -59,11 +59,28 @@ export function createLabel(
     return result
 }
 
+export function createLabelWithElement(
+    id: string,
+    element: Element,
+    children?: Node[],
+): Element {
+    element.setAttribute("id", id)
+    return createDiv(
+        [
+            createLabel(
+                id,
+                children,
+            ),
+            element,
+        ]
+    )
+}
+
 export function createSwitch(
-        lifeScope: LifeScope,
-        state: StateObservable<boolean>,
-        onStateChanged: (isChecked: boolean) => void,
-        id?: string,
+    lifeScope: LifeScope,
+    state: StateObservable<boolean>,
+    onStateChanged: (isChecked: boolean) => void,
+    id?: string,
 ): Element {
     let result = createElement("input") as HTMLInputElement
     result.setAttribute("type", "checkbox")
@@ -83,8 +100,8 @@ export function createSwitch(
 }
 
 export function createHeader(
-        level: Number,
-        text: string,
+    level: Number,
+    text: string,
 ): Element {
     let result = createElement(`h${level}`);
     result.textContent = text;
@@ -92,7 +109,7 @@ export function createHeader(
 }
 
 export function createDiv(
-        children?: Node[],
+    children?: Node[],
 ): Element {
     let result = createElement("div")
     children?.forEach((child) => {
@@ -102,7 +119,7 @@ export function createDiv(
 }
 
 export function createGroup(
-        children?: Node[],
+    children?: Node[],
 ): Element {
     let result = createElement("fieldset")
     result.role = "group"
@@ -113,7 +130,7 @@ export function createGroup(
 }
 
 export function createArticle(
-        children?: Node[]
+    children?: Node[]
 ): Element {
     let result = createElement("article");
     result.append(...(children ?? []))
@@ -121,13 +138,13 @@ export function createArticle(
 }
 
 export function createText(
-        text: string,
+    text: string,
 ): Node {
     return document.createTextNode(text);
 }
 
 export function createParagraph(
-        text: string,
+    text: string,
 ): Element {
     let result = createElement("p");
     result.textContent = text;
@@ -136,11 +153,21 @@ export function createParagraph(
 
 export enum ButtonLevel { Primary, Secondary, Contrast }
 
+export function createA(
+    text: string,
+    onClick: () => void,
+): HTMLAnchorElement {
+    let result = document.createElement("a")
+    result.onclick = onClick
+    result.textContent = text
+    return result
+}
+
 export function createButton(
-        text: string,
-        onClick: () => void,
-        level?: ButtonLevel,
-        outline?: boolean,
+    text: string,
+    onClick: () => void,
+    level?: ButtonLevel,
+    outline?: boolean,
 ): Element {
     let result = createElement("button") as HTMLButtonElement;
     switch (level ?? ButtonLevel.Primary) {

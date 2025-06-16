@@ -11,7 +11,6 @@ import { displayLoadingPanel } from "../utils/ui/displayLoadingPanel";
 import { displayState } from "../utils/ui/displayState";
 import { ButtonLevel, createArticle, createButton, createDiv, createElement, createGroup, createHeader, createLabel, createText, setLoading } from "../utils/ui/elements";
 import { MessageDisplayer } from "../utils/ui/message/messagesDisplayer";
-import { BindingsView } from "./bindings/bindingsView";
 import { Input } from "./input";
 import { Tab } from "./tab/tab";
 import { TabBindings } from "./tab/tabBindings";

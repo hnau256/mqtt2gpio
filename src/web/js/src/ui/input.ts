@@ -1,4 +1,4 @@
-import { createDiv, createLabel, createText } from "../utils/ui/elements";
+import { createDiv, createLabel, createLabelWithElement, createText } from "../utils/ui/elements";
 
 export class Input<T> {
     private input: HTMLInputElement;
@@ -16,17 +16,12 @@ export class Input<T> {
         this.decoder = decoder;
         let input = document.createElement("input");
         this.input = input;
-        input.setAttribute("id", id);
         input.setAttribute("type", type);
         input.setAttribute("value", initial);
-        this.element = createDiv(
-            [
-                createLabel(
-                    id,
-                    [createText(title)]
-                ),
-                input,
-            ]
+        this.element = createLabelWithElement(
+            id,
+            input,
+            [createText(title)],
         )
     }
 

@@ -58,6 +58,7 @@ export class TabBindings {
         var view: BindingView
         view = new BindingView(
             bindingScope,
+            id,
             binding,
             () => {
                 bindingScope.cancel()
