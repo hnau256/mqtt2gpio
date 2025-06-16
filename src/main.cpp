@@ -7,9 +7,11 @@
 #include <ESPmDNS.h>
 #include "settings_repository.hpp"
 #include "web_server.hpp"
+#include "mqtt_binder.hpp"
 
 SettingsRepository settingsRepository;
 WebServerHandler server(settingsRepository);
+MqttBinder mqtt(settingsRepository);
 
 void setup() {
   Serial.begin(115200);
@@ -26,6 +28,7 @@ void setup() {
 
   settingsRepository.init();
   server.init();
+  mqtt.setup();
 
   const Settings& settings = settingsRepository.getSettings();
   if (MDNS.begin(settings.mdnsName.c_str())) {
@@ -37,4 +40,5 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  mqtt.loop();
 }

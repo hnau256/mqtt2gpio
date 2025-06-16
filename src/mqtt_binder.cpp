@@ -1,0 +1,72 @@
+#include "mqtt_binder.hpp"
+
+MqttBinder::MqttBinder(SettingsRepository &settingsRepository)
+    : pubSubClient(wifiClient), settingsRepository(settingsRepository),
+      lastConnection(0) {}
+
+void MqttBinder::setup() {
+  const Settings &settings = settingsRepository.getSettings();
+  pubSubClient.setServer(settings.mqtt.address.c_str(), settings.mqtt.port);
+  pubSubClient.setCallback(
+      std::bind(&MqttBinder::callback, this, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3));
+}
+
+void MqttBinder::callback(char *topic, byte *payload, unsigned int length) {
+  String message;
+  for (int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+
+  String topicString = topic;
+
+  Serial.println("MQTT. Received from topic '" + topicString + "' message: '" + message + "'");
+  const Settings &settings = settingsRepository.getSettings();
+  for (const Binding &binding : settings.bindings) {
+    if (binding.direction == MqttDirection::SUBSCRIBE &&
+        binding.topic == topicString) {
+      uint8_t level = (message == "true") ? HIGH : LOW;
+      digitalWrite(binding.pin, level);
+    }
+  }
+}
+
+void MqttBinder::loop() {
+  if (!this->pubSubClient.connected()) {
+    this->handleDisconnected();
+  }
+  this->pubSubClient.loop();
+}
+
+void MqttBinder::handleDisconnected() {
+  if (this->lastConnection != 0) {
+    uint64_t delta = millis() - this->lastConnection;
+    if (delta < 5000) {
+      return;
+    }
+  }
+
+  const Settings &settings = settingsRepository.getSettings();
+  bool connected = this->pubSubClient.connect(settings.mqtt.clientId.c_str(),
+                                              settings.mqtt.user.c_str(),
+                                              settings.mqtt.password.c_str());
+  this->lastConnection = millis();
+  if (connected) {
+    Serial.println("MQTT. Connected");
+    this->bind();
+  } else {
+    Serial.println("MQTT. Not connected");
+  }
+}
+
+void MqttBinder::bind() {
+  const Settings &settings = settingsRepository.getSettings();
+  for (const Binding &binding : settings.bindings) {
+    if (binding.direction == MqttDirection::SUBSCRIBE) {
+      Serial.println("MQTT. Subscribing to: '" + binding.topic + "' for pin: " + binding.pin);
+      pubSubClient.subscribe(binding.topic.c_str());
+      pinMode(binding.pin, OUTPUT);
+    }
+  }
+  Serial.println("MQTT. Subscribed for all expected topics");
+}
