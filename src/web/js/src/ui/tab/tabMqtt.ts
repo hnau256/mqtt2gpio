@@ -7,17 +7,18 @@ export class TabMqtt {
 
     element: Element;
 
-    private mqttAddress: Input<string>;
-    private mqttPort: Input<number>;
-    private mqttUser: Input<string>;
-    private mqttPassword: Input<string>;
+    private addresss: Input<string>;
+    private port: Input<number>;
+    private user: Input<string>;
+    private password: Input<string>;
+    private clientId: Input<string>;
 
     constructor(
         lifeScope: LifeScope,
         initialMqtt: MqttSettings,
     ) {
 
-        this.mqttAddress = new Input<string>(
+        this.addresss = new Input<string>(
             "Address",
             "address",
             "url",
@@ -25,7 +26,7 @@ export class TabMqtt {
             (raw) => { return raw },
         );
 
-        this.mqttPort = new Input<number>(
+        this.port = new Input<number>(
             "Port",
             "port",
             "number",
@@ -33,7 +34,7 @@ export class TabMqtt {
             (raw) => { return parseInt(raw) },
         );
 
-        this.mqttUser = new Input<string>(
+        this.user = new Input<string>(
             "User",
             "user",
             "text",
@@ -41,7 +42,7 @@ export class TabMqtt {
             (raw) => { return raw },
         );
 
-        this.mqttPassword = new Input<string>(
+        this.password = new Input<string>(
             "Password",
             "password",
             "text",
@@ -49,22 +50,32 @@ export class TabMqtt {
             (raw) => { return raw },
         );
 
+        this.clientId = new Input<string>(
+            "Client ID",
+            "client_id",
+            "text",
+            initialMqtt.clientId,
+            (raw) => { return raw },
+        );
+
         this.element = createDiv(
             [
-                this.mqttAddress.element,
-                this.mqttPort.element,
-                this.mqttUser.element,
-                this.mqttPassword.element,
+                this.addresss.element,
+                this.port.element,
+                this.user.element,
+                this.password.element,
+                this.clientId.element,
             ]
         )
     }
 
     get mqttSettings(): MqttSettings {
         return {
-            address: this.mqttAddress.value,
-            port: this.mqttPort.value,
-            user: this.mqttUser.value,
-            password: this.mqttPassword.value,
+            address: this.addresss.value,
+            port: this.port.value,
+            user: this.user.value,
+            password: this.password.value,
+            clientId: this.clientId.value,
         }
     }
 }

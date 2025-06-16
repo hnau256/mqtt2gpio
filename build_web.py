@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-is_debug = False
+is_debug = True
 
 def read_file(name: str) -> str:
     file = open(name, 'r', encoding='utf-8')

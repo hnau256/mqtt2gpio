@@ -1,13 +1,13 @@
 #include "settings.hpp"
 
-// Реализация MqttSettings
-MqttSettings::MqttSettings() : address(""), port(SettingsDefaults::MQTT_PORT), user(""), password("") {}
+MqttSettings::MqttSettings() : address(""), port(SettingsDefaults::MQTT_PORT), user(""), password(""), userId("") {}
 
 MqttSettings::MqttSettings(const JsonObject& obj) {
   address = obj[JsonKeys::ADDRESS] | String("");
   port = obj[JsonKeys::PORT] | SettingsDefaults::MQTT_PORT;
   user = obj[JsonKeys::USER] | String("");
   password = obj[JsonKeys::PASSWORD] | String("");
+  userId = obj[JsonKeys::USER_ID] | String("");
 }
 
 void MqttSettings::toJson(JsonObject& obj) const {
@@ -15,9 +15,9 @@ void MqttSettings::toJson(JsonObject& obj) const {
   obj[JsonKeys::PORT] = port;
   obj[JsonKeys::USER] = user;
   obj[JsonKeys::PASSWORD] = password;
+  obj[JsonKeys::USER_ID] = userId;
 }
 
-// Реализация Binding
 Binding::Binding() : type(MqttType::BOOL), pin(0), topic(""), direction(MqttDirection::SUBSCRIBE) {}
 
 Binding::Binding(const JsonObject& obj) {
@@ -47,15 +47,14 @@ void Binding::toJson(JsonObject& obj) const {
   }
 }
 
-// Реализация Settings
-Settings::Settings() : mdns_name(SettingsDefaults::MDNS_NAME) {}
+Settings::Settings() : mdnsName(SettingsDefaults::MDNS_NAME) {}
 
-Settings::Settings(const String& jsonString) : mdns_name(SettingsDefaults::MDNS_NAME) {
+Settings::Settings(const String& jsonString) : mdnsName(SettingsDefaults::MDNS_NAME) {
   DynamicJsonDocument doc(SettingsDefaults::JSON_CAPACITY);
   deserializeJson(doc, jsonString); // Игнорируем ошибки парсинга
   JsonObject root = doc.as<JsonObject>();
 
-  mdns_name = root[JsonKeys::MDNS_NAME] | String(SettingsDefaults::MDNS_NAME);
+  mdnsName = root[JsonKeys::MDNS_NAME] | String(SettingsDefaults::MDNS_NAME);
   mqtt = MqttSettings(root[JsonKeys::MQTT].as<JsonObject>());
 
   bindings.clear();
@@ -68,7 +67,7 @@ Settings::Settings(const String& jsonString) : mdns_name(SettingsDefaults::MDNS_
 String Settings::toJson() const {
   DynamicJsonDocument doc(SettingsDefaults::JSON_CAPACITY);
   JsonObject root = doc.to<JsonObject>();
-  root[JsonKeys::MDNS_NAME] = mdns_name;
+  root[JsonKeys::MDNS_NAME] = mdnsName;
 
   JsonObject mqttObj = root.createNestedObject(JsonKeys::MQTT);
   mqtt.toJson(mqttObj);

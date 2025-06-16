@@ -28,8 +28,8 @@ void setup() {
   server.init();
 
   const Settings& settings = settingsRepository.getSettings();
-  if (MDNS.begin(settings.mdns_name.c_str())) {
-    Serial.println("mDNS responder started with name: " + settings.mdns_name);
+  if (MDNS.begin(settings.mdnsName.c_str())) {
+    Serial.println("mDNS responder started with name: " + settings.mdnsName);
   } else {
     Serial.println("Failed to start mDNS");
   }

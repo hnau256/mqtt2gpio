@@ -14,6 +14,7 @@ export interface MqttSettings {
   port: number;
   user: string;
   password: string;
+  clientId: string;
 }
 
 export interface Binding {

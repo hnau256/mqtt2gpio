@@ -11,7 +11,6 @@ namespace SettingsDefaults {
     const size_t JSON_CAPACITY = 1024;
 }
 
-// Константы для JSON-ключей
 namespace JsonKeys {
   const char* const MDNS_NAME = "mdns_name";
   const char* const MQTT = "mqtt";
@@ -19,18 +18,17 @@ namespace JsonKeys {
   const char* const PORT = "port";
   const char* const USER = "user";
   const char* const PASSWORD = "password";
+  const char* const USER_ID = "user_id";
   const char* const BINDINGS = "bindings";
   const char* const TYPE = "type";
   const char* const PIN = "pin";
   const char* const TOPIC = "topic";
   const char* const DIRECTION = "direction";
 
-  // Значения для type
   const char* const TYPE_BOOL = "bool";
   const char* const TYPE_FLOAT = "float";
   const char* const TYPE_TIC = "tic";
 
-  // Значения direction
   const char* const DIR_SUBSCRIBE = "subscribe";
   const char* const DIR_PUBLISH = "publish";
 }
@@ -54,13 +52,13 @@ public:
   uint16_t port;
   String user;
   String password;
+  String userId;
 
-  MqttSettings(); // Конструктор по умолчанию
-  MqttSettings(const JsonObject& obj); // Конструктор из JSON
+  MqttSettings();
+  MqttSettings(const JsonObject& obj);
   void toJson(JsonObject& obj) const;
 };
 
-// Класс для привязок (bindings)
 class Binding {
 public:
   MqttType type;
@@ -68,20 +66,19 @@ public:
   String topic;
   MqttDirection direction;
 
-  Binding(); // Конструктор по умолчанию
-  Binding(const JsonObject& obj); // Конструктор из JSON
+  Binding();
+  Binding(const JsonObject& obj);
   void toJson(JsonObject& obj) const;
 };
 
-// Класс для общих настроек
 class Settings {
 public:
-  String mdns_name;
+  String mdnsName;
   MqttSettings mqtt;
   std::vector<Binding> bindings;
 
-  Settings(); // Конструктор по умолчанию
-  Settings(const String& jsonString); // Конструктор из JSON-строки
+  Settings(); 
+  Settings(const String& jsonString);
   String toJson() const;
 };
 

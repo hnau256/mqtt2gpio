@@ -70,10 +70,11 @@ function createSettingsStub(): Settings {
     return {
         mdns_name: "mqtt2gpio",
         mqtt: {
-            address: "192.168.0.45",
+            address: "192.168.0.42",
             port: 1883,
             user: "user",
-            password: "password"
+            password: "password",
+            clientId: "client id"
         },
         bindings: [
             {
