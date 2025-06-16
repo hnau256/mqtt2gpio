@@ -1,16 +1,10 @@
 #include "settings.hpp"
 
-MqttSettings::MqttSettings() : address(""), port(SettingsDefaults::MQTT_PORT), user(""), password(""), userId("") {}
+MqttSettings::MqttSettings()
+    : address(""), port(SettingsDefaults::MQTT_PORT), user(""), password(""),
+      clientId(SettingsDefaults::MQTT_CLIENT_NAME) {}
 
-MqttSettings::MqttSettings(const JsonObject& obj) {
-  address = obj[JsonKeys::ADDRESS] | String("");
-  port = obj[JsonKeys::PORT] | SettingsDefaults::MQTT_PORT;
-  user = obj[JsonKeys::USER] | String("");
-  password = obj[JsonKeys::PASSWORD] | String("");
-  clientId = obj[JsonKeys::CLIENT_ID] | String("");
-}
-
-void MqttSettings::toJson(JsonObject& obj) const {
+void MqttSettings::toJson(JsonObject &obj) const {
   obj[JsonKeys::ADDRESS] = address;
   obj[JsonKeys::PORT] = port;
   obj[JsonKeys::USER] = user;
@@ -18,90 +12,155 @@ void MqttSettings::toJson(JsonObject& obj) const {
   obj[JsonKeys::CLIENT_ID] = clientId;
 }
 
-bool MqttSettings::fromJson(const JsonObject& obj) {
+bool MqttSettings::fromJson(const JsonObject &obj) {
 
-  String address = obj[JsonKeys::ADDRESS] | "";
+  bool result = true;
+
+  address = obj[JsonKeys::ADDRESS] | "";
   if (address.isEmpty()) {
     Serial.println("Unable parse MQTT settings: no address defined");
-    return false;
+    result = false;
   }
-  
-  uint16_t port = obj[JsonKeys::PORT] | 0;
+
+  port = obj[JsonKeys::PORT] | 0;
   if (port < 1) {
     Serial.println("Unable parse MQTT settings: no port defined");
-    return false;
+    port = SettingsDefaults::MQTT_PORT;
+    result = false;
   }
 
-  String clientId = obj[JsonKeys::CLIENT_ID] | "";
+  clientId = obj[JsonKeys::CLIENT_ID] | "";
   if (clientId.isEmpty()) {
     Serial.println("Unable parse MQTT settings: no client id defined");
+    clientId = SettingsDefaults::MQTT_CLIENT_NAME;
+    result = false;
+  }
+
+  user = obj[JsonKeys::USER] | "";
+  password = obj[JsonKeys::PASSWORD] | "";
+
+  return result;
+}
+
+Binding::Binding()
+    : type(MqttType::BOOL), pin(0), topic(""),
+      direction(MqttDirection::SUBSCRIBE) {}
+
+bool Binding::fromJson(const JsonObject &obj) {
+
+  String typeStr = obj[JsonKeys::TYPE] | "";
+  if (typeStr.isEmpty()) {
+    Serial.println("Unable parse binding: no type defined");
     return false;
   }
 
-  this->address = address;
-  this->port = port;
-  this->user = obj[JsonKeys::USER] | "";
-  this->password = obj[JsonKeys::PASSWORD] | "";
-  this->clientId = clientId;
+  if (typeStr == JsonKeys::TYPE_BOOL)
+    type = MqttType::FLOAT;
+  else if (typeStr == JsonKeys::TYPE_FLOAT)
+    type = MqttType::FLOAT;
+  else if (typeStr == JsonKeys::TYPE_TIC)
+    type = MqttType::TIC;
+  else {
+    Serial.println("Unable parse binding: unknown type: " + typeStr);
+    return false;
+  }
+
+  String directionStr = obj[JsonKeys::DIRECTION] | "";
+  if (directionStr.isEmpty()) {
+    Serial.println("Unable parse binding: no direction defined");
+    return false;
+  }
+
+  if (directionStr == JsonKeys::DIR_PUBLISH)
+    direction = MqttDirection::PUBLISH;
+  else if (directionStr == JsonKeys::DIR_SUBSCRIBE)
+    direction = MqttDirection::SUBSCRIBE;
+  else {
+    Serial.println("Unable parse binding: unknown direction: " + directionStr);
+    return false;
+  }
+
+  pin = obj[JsonKeys::PIN] | (SettingsDefaults::MAX_PIN + 1);
+  if (pin > SettingsDefaults::MAX_PIN) {
+    Serial.println("Unable parse binding: pin should be less or equals to " +
+                   String(SettingsDefaults::MAX_PIN) + ", got " + pin);
+    return false;
+  }
+
+  topic = obj[JsonKeys::TOPIC] | "";
+  if (topic.isEmpty()) {
+    Serial.println("Unable parse binding: no topic defined");
+    return false;
+  }
+
   return true;
 }
 
-Binding::Binding() : type(MqttType::BOOL), pin(0), topic(""), direction(MqttDirection::SUBSCRIBE) {}
-
-Binding::Binding(const JsonObject& obj) {
-  String typeStr = obj[JsonKeys::TYPE] | String(JsonKeys::TYPE_BOOL);
-  if (typeStr == JsonKeys::TYPE_FLOAT) type = MqttType::FLOAT;
-  else if (typeStr == JsonKeys::TYPE_TIC) type = MqttType::TIC;
-  else type = MqttType::BOOL;
-
-  pin = obj[JsonKeys::PIN] | 0;
-  topic = obj[JsonKeys::TOPIC] | String("");
-
-  String dirStr = obj[JsonKeys::DIRECTION] | String(JsonKeys::DIR_SUBSCRIBE);
-  direction = (dirStr == JsonKeys::DIR_PUBLISH) ? MqttDirection::PUBLISH : MqttDirection::SUBSCRIBE;
-}
-
-void Binding::toJson(JsonObject& obj) const {
+void Binding::toJson(JsonObject &obj) const {
   switch (type) {
-    case MqttType::BOOL: obj[JsonKeys::TYPE] = JsonKeys::TYPE_BOOL; break;
-    case MqttType::FLOAT: obj[JsonKeys::TYPE] = JsonKeys::TYPE_FLOAT; break;
-    case MqttType::TIC: obj[JsonKeys::TYPE] = JsonKeys::TYPE_TIC; break;
+  case MqttType::BOOL:
+    obj[JsonKeys::TYPE] = JsonKeys::TYPE_BOOL;
+    break;
+  case MqttType::FLOAT:
+    obj[JsonKeys::TYPE] = JsonKeys::TYPE_FLOAT;
+    break;
+  case MqttType::TIC:
+    obj[JsonKeys::TYPE] = JsonKeys::TYPE_TIC;
+    break;
   }
   obj[JsonKeys::PIN] = pin;
   obj[JsonKeys::TOPIC] = topic;
   switch (direction) {
-    case MqttDirection::SUBSCRIBE: obj[JsonKeys::DIRECTION] = JsonKeys::DIR_SUBSCRIBE; break;
-    case MqttDirection::PUBLISH: obj[JsonKeys::DIRECTION] = JsonKeys::DIR_PUBLISH; break;
+  case MqttDirection::SUBSCRIBE:
+    obj[JsonKeys::DIRECTION] = JsonKeys::DIR_SUBSCRIBE;
+    break;
+  case MqttDirection::PUBLISH:
+    obj[JsonKeys::DIRECTION] = JsonKeys::DIR_PUBLISH;
+    break;
   }
 }
 
 Settings::Settings() : mdnsName(SettingsDefaults::MDNS_NAME) {}
 
-Settings::Settings(const String& jsonString) : mdnsName(SettingsDefaults::MDNS_NAME) {
-  DynamicJsonDocument doc(SettingsDefaults::JSON_CAPACITY);
-  deserializeJson(doc, jsonString); // Игнорируем ошибки парсинга
-  JsonObject root = doc.as<JsonObject>();
+bool Settings::fromJson(const String &jsonString) {
+  JsonDocument doc;
+  deserializeJson(doc, jsonString);
 
-  mdnsName = root[JsonKeys::MDNS_NAME] | String(SettingsDefaults::MDNS_NAME);
-  mqtt = MqttSettings(root[JsonKeys::MQTT].as<JsonObject>());
+  bool result = true;
+
+  mdnsName = doc[JsonKeys::MDNS_NAME] | "";
+  if (mdnsName.isEmpty()) {
+    Serial.println("Unable parse settings: no MDNS name defined");
+    mdnsName = SettingsDefaults::MDNS_NAME;
+    result = false;
+  }
+
+  result &= mqtt.fromJson(doc[JsonKeys::MQTT].as<JsonObject>());
 
   bindings.clear();
-  JsonArray bindingsArray = root[JsonKeys::BINDINGS].as<JsonArray>();
+  JsonArray bindingsArray = doc[JsonKeys::BINDINGS].as<JsonArray>();
   for (JsonObject bindingObj : bindingsArray) {
-    bindings.push_back(Binding(bindingObj));
+    Binding binding;
+    bool correctBinding = binding.fromJson(bindingObj);
+    if (correctBinding) {
+      bindings.push_back(binding);
+    } else {
+      result = false;
+    }
   }
+
+  return result;
 }
 
 String Settings::toJson() const {
-  DynamicJsonDocument doc(SettingsDefaults::JSON_CAPACITY);
-  JsonObject root = doc.to<JsonObject>();
-  root[JsonKeys::MDNS_NAME] = mdnsName;
+  JsonDocument doc;
+  doc[JsonKeys::MDNS_NAME] = mdnsName;
 
-  JsonObject mqttObj = root.createNestedObject(JsonKeys::MQTT);
+  JsonObject mqttObj = doc.createNestedObject(JsonKeys::MQTT);
   mqtt.toJson(mqttObj);
 
-  JsonArray bindingsArray = root.createNestedArray(JsonKeys::BINDINGS);
-  for (const Binding& binding : bindings) {
+  JsonArray bindingsArray = doc.createNestedArray(JsonKeys::BINDINGS);
+  for (const Binding &binding : bindings) {
     JsonObject bindingObj = bindingsArray.createNestedObject();
     binding.toJson(bindingObj);
   }

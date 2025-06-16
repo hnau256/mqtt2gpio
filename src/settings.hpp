@@ -8,7 +8,9 @@
 namespace SettingsDefaults {
     const char* const MDNS_NAME = "mqtt2gpio";
     const uint16_t MQTT_PORT = 1883;
+    const char* const MQTT_CLIENT_NAME = "mqtt2gpio";
     const size_t JSON_CAPACITY = 1024;
+    const uint8_t MAX_PIN = 39;
 }
 
 namespace JsonKeys {
@@ -18,7 +20,7 @@ namespace JsonKeys {
   const char* const PORT = "port";
   const char* const USER = "user";
   const char* const PASSWORD = "password";
-  const char* const CLIENT_ID = "user_id";
+  const char* const CLIENT_ID = "client_id";
   const char* const BINDINGS = "bindings";
   const char* const TYPE = "type";
   const char* const PIN = "pin";
@@ -33,7 +35,6 @@ namespace JsonKeys {
   const char* const DIR_PUBLISH = "publish";
 }
 
-// Перечисления
 enum class MqttDirection {
   SUBSCRIBE,
   PUBLISH
@@ -45,7 +46,6 @@ enum class MqttType {
   TIC
 };
 
-// Класс для MQTT-настроек
 class MqttSettings {
 public:
   String address;
@@ -55,9 +55,8 @@ public:
   String clientId;
 
   MqttSettings();
-  MqttSettings(const JsonObject& obj);
-  void toJson(JsonObject& obj) const;
   bool fromJson(const JsonObject& obj);
+  void toJson(JsonObject& obj) const;
 };
 
 class Binding {
@@ -68,7 +67,7 @@ public:
   MqttDirection direction;
 
   Binding();
-  Binding(const JsonObject& obj);
+  bool fromJson(const JsonObject& obj);
   void toJson(JsonObject& obj) const;
 };
 
@@ -79,7 +78,7 @@ public:
   std::vector<Binding> bindings;
 
   Settings(); 
-  Settings(const String& jsonString);
+  bool fromJson(const String& jsonString);
   String toJson() const;
 };
 

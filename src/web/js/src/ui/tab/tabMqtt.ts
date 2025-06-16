@@ -54,7 +54,7 @@ export class TabMqtt {
             "Client ID",
             "client_id",
             "text",
-            initialMqtt.clientId,
+            initialMqtt.client_id,
             (raw) => { return raw },
         );
 
@@ -75,7 +75,7 @@ export class TabMqtt {
             port: this.port.value,
             user: this.user.value,
             password: this.password.value,
-            clientId: this.clientId.value,
+            client_id: this.clientId.value,
         }
     }
 }

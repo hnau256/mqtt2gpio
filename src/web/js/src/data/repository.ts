@@ -74,7 +74,7 @@ function createSettingsStub(): Settings {
             port: 1883,
             user: "user",
             password: "password",
-            clientId: "client id"
+            client_id: "client id"
         },
         bindings: [
             {

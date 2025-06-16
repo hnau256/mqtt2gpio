@@ -38,7 +38,13 @@ void WebServerHandler::handleGetSettings() {
 void WebServerHandler::handleSetSettingsAndRestart() {
   if (server.hasArg("plain")) {
     String body = server.arg("plain");
-    Settings settings(body);
+    Settings settings;
+    bool parseResult = settings.fromJson(body);
+    if (!parseResult) {
+      Serial.println("Unable parse settings from: " + body);
+      server.send(500, "application/json", "{\"error\":\"Unable parse settings\"}");
+      return;
+    }
     if (!settingsRepository.saveSettings(settings)) {
       server.send(500, "application/json", "{\"error\":\"Failed to save settings\"}");
       return;

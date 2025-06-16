@@ -1,9 +1,8 @@
 #include "settings_repository.hpp"
 
 namespace {
-    const char* const SETTINGS_FILENAME = "/settings.json";  
+const char *const SETTINGS_FILENAME = "/settings.json";
 }
-
 
 void SettingsRepository::init() {
   if (!LittleFS.begin(true)) {
@@ -18,18 +17,20 @@ void SettingsRepository::init() {
       jsonString += char(file.read());
     }
     file.close();
-    settings = Settings(jsonString);
-    Serial.println("Settings loaded from file");
+    bool parseResult = settings.fromJson(jsonString);
+    if (parseResult) {
+      Serial.println("Settings loaded from file");
+    } else {
+      Serial.println("Unable parse setting from: " + jsonString);
+    }
   } else {
     Serial.println("No settings.json found, using default settings");
   }
 }
 
-const Settings& SettingsRepository::getSettings() const {
-  return settings;
-}
+const Settings &SettingsRepository::getSettings() const { return settings; }
 
-bool SettingsRepository::saveSettings(const Settings& newSettings) {
+bool SettingsRepository::saveSettings(const Settings &newSettings) {
   String jsonString = newSettings.toJson();
   File file = LittleFS.open(SETTINGS_FILENAME, "w");
   if (!file) {
