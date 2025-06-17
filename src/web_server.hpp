@@ -1,5 +1,5 @@
-#ifndef WEB_SERVER_HANDLER_HPP
-#define WEB_SERVER_HANDLER_HPP
+#ifndef web_server_hpp
+#define web_server_hpp
 
 #include <WebServer.h>
 #include "settings_repository.hpp"
@@ -7,8 +7,8 @@
 class WebServerHandler {
 public:
   WebServerHandler(SettingsRepository& settingsRepository);
-  void init();
-  void handleClient();
+  void setup();
+  void loop();
 
 private:
   WebServer server;
@@ -20,4 +20,4 @@ private:
   void handleSetSettingsAndRestart();
 };
 
-#endif // WEB_SERVER_HANDLER_HPP
+#endif // web_server_hpp

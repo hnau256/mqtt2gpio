@@ -1,44 +1,62 @@
-#include "not_found_html.hpp"
-#include "generated/index_html.hpp"
+#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+#include "esp_log.h"
 
 #include <Arduino.h>
-#include <WiFiManager.h>
-#include <WebServer.h>
-#include <ESPmDNS.h>
+
+#include "initialize_filesystem.hpp"
+#include "initialize_mdns.hpp"
+#include "initialize_wifi.hpp"
+#include "mqtt_binder.hpp"
 #include "settings_repository.hpp"
 #include "web_server.hpp"
-#include "mqtt_binder.hpp"
+
+static const char *TAG = "Main";
+
+bool initialized;
 
 SettingsRepository settingsRepository;
 WebServerHandler server(settingsRepository);
-MqttBinder mqtt(settingsRepository);
+MqttBinder mqtt;
+
+bool initialize() {
+  bool fileSystemInitialized = initializeFilesystem();
+  if (!fileSystemInitialized) {
+    return false;
+  }
+
+  bool wifiInitialized = initializeWifi();
+  if (!wifiInitialized) {
+    return false;
+  }
+
+  return true;
+}
 
 void setup() {
   Serial.begin(115200);
 
-  WiFiManager wifiManager;
-  if (!wifiManager.autoConnect("ESP32-AP")) {
-    Serial.println("Failed to connect and hit timeout");
+  ESP_LOGD(TAG, "Init");
+
+  initialized = initialize();
+  if (!initialized) {
+    ESP_LOGE(TAG, "Unable to initialie. Restarting...");
     ESP.restart();
+    return;
   }
 
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  settingsRepository.setup();
 
-  settingsRepository.init();
-  server.init();
-  mqtt.setup();
-
+  server.setup();
+  
   const Settings& settings = settingsRepository.getSettings();
-  if (MDNS.begin(settings.mdnsName.c_str())) {
-    Serial.println("mDNS responder started with name: " + settings.mdnsName);
-  } else {
-    Serial.println("Failed to start mDNS");
-  }
+  initializeMDns(settings);
+  mqtt.setup(settings);
 }
 
 void loop() {
-  server.handleClient();
+  if (!initialized) {
+    return;
+  }
+  server.loop();
   mqtt.loop();
 }

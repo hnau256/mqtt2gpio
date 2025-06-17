@@ -1,5 +1,5 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#ifndef settings_hpp
+#define settings_hpp
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -82,4 +82,4 @@ public:
   String toJson() const;
 };
 
-#endif
+#endif //settings_hpp

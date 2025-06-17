@@ -1,15 +1,15 @@
 #include "web_server.hpp"
-#include <Arduino.h> // Для delay и ESP.restart()
+
+#include <Arduino.h>
 #include "generated/index_html.hpp" 
 #include "not_found_html.hpp"
+#include "settings_repository.hpp"
 
 WebServerHandler::WebServerHandler(
-    SettingsRepository& settingsRepository
-) : server(80), 
-  settingsRepository(settingsRepository) {
-}
+  SettingsRepository& settingsRepository
+) : server(80), settingsRepository(settingsRepository) {}
 
-void WebServerHandler::init() {
+void WebServerHandler::setup() {
   server.on("/", std::bind(&WebServerHandler::handleRoot, this));
   server.on("/get_settings", HTTP_GET, std::bind(&WebServerHandler::handleGetSettings, this));
   server.on("/set_settings_and_restart", HTTP_POST, std::bind(&WebServerHandler::handleSetSettingsAndRestart, this));
@@ -18,7 +18,7 @@ void WebServerHandler::init() {
   Serial.println("HTTP server started");
 }
 
-void WebServerHandler::handleClient() {
+void WebServerHandler::loop() {
   server.handleClient();
 }
 
@@ -31,28 +31,30 @@ void WebServerHandler::handleNotFound() {
 }
 
 void WebServerHandler::handleGetSettings() {
-  String jsonString = settingsRepository.getSettings().toJson();
-  server.send(200, "application/json", jsonString);
+  server.send(200, "application/json", settingsRepository.getSettings().toJson());
 }
 
 void WebServerHandler::handleSetSettingsAndRestart() {
-  if (server.hasArg("plain")) {
-    String body = server.arg("plain");
-    Settings settings;
-    bool parseResult = settings.fromJson(body);
-    if (!parseResult) {
-      Serial.println("Unable parse settings from: " + body);
-      server.send(500, "application/json", "{\"error\":\"Unable parse settings\"}");
-      return;
-    }
-    if (!settingsRepository.saveSettings(settings)) {
-      server.send(500, "application/json", "{\"error\":\"Failed to save settings\"}");
-      return;
-    }
-    server.send(200, "application/json", "{\"status\":\"Settings saved, restarting\"}");
-    delay(1000);
-    ESP.restart();
-  } else {
+  if (!server.hasArg("plain")) {
     server.send(400, "application/json", "{\"error\":\"No body provided\"}");
+    return;
   }
+
+  String body = server.arg("plain");
+  Settings settings;
+  bool parseResult = settings.fromJson(body);
+  if (!parseResult) {
+    Serial.println("Unable parse settings from: " + body);
+    server.send(500, "application/json", "{\"error\":\"Unable parse settings\"}");
+    return;
+  }
+
+  if (!settingsRepository.updateSettings(settings)) {
+    server.send(500, "application/json", "{\"error\":\"Failed to save settings\"}");
+    return;
+  }
+
+  server.send(200, "application/json", "{\"status\":\"Settings saved, restarting\"}");
+  delay(1000);
+  ESP.restart();
 }

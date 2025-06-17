@@ -1,17 +1,18 @@
-#ifndef SETTINGS_REPOSITORY_H
-#define SETTINGS_REPOSITORY_H
+#ifndef settings_repository_hpp
+#define settings_repository_hpp
 
 #include "settings.hpp"
-#include <LittleFS.h>
 
 class SettingsRepository {
 public:
-  void init();
-  const Settings& getSettings() const;
-  bool saveSettings(const Settings& newSettings);
+  void setup();
+
+  const Settings &getSettings() const;
+
+  bool updateSettings(const Settings &settings);
 
 private:
   Settings settings;
 };
 
-#endif
+#endif // settings_repository_hpp

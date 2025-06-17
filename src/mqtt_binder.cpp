@@ -1,11 +1,11 @@
 #include "mqtt_binder.hpp"
 
-MqttBinder::MqttBinder(SettingsRepository &settingsRepository)
-    : pubSubClient(wifiClient), settingsRepository(settingsRepository),
-      lastConnection(0) {}
+MqttBinder::MqttBinder()  : pubSubClient(wifiClient), lastConnection(0) {}
 
-void MqttBinder::setup() {
-  const Settings &settings = settingsRepository.getSettings();
+void MqttBinder::setup(
+  const Settings& settings
+) {
+  this->settings = settings;
   pubSubClient.setServer(settings.mqtt.address.c_str(), settings.mqtt.port);
   pubSubClient.setCallback(
       std::bind(&MqttBinder::callback, this, std::placeholders::_1,
@@ -21,7 +21,6 @@ void MqttBinder::callback(char *topic, byte *payload, unsigned int length) {
   String topicString = topic;
 
   Serial.println("MQTT. Received from topic '" + topicString + "' message: '" + message + "'");
-  const Settings &settings = settingsRepository.getSettings();
   for (const Binding &binding : settings.bindings) {
     if (binding.direction == MqttDirection::SUBSCRIBE &&
         binding.topic == topicString) {
@@ -46,7 +45,6 @@ void MqttBinder::handleDisconnected() {
     }
   }
 
-  const Settings &settings = settingsRepository.getSettings();
   bool connected = this->pubSubClient.connect(settings.mqtt.clientId.c_str(),
                                               settings.mqtt.user.c_str(),
                                               settings.mqtt.password.c_str());
@@ -60,7 +58,6 @@ void MqttBinder::handleDisconnected() {
 }
 
 void MqttBinder::bind() {
-  const Settings &settings = settingsRepository.getSettings();
   for (const Binding &binding : settings.bindings) {
     if (binding.direction == MqttDirection::SUBSCRIBE) {
       Serial.println("MQTT. Subscribing to: '" + binding.topic + "' for pin: " + binding.pin);
