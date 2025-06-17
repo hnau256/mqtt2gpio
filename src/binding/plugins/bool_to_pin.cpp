@@ -39,7 +39,7 @@ void BoolToPin::onMessage(String topic, String message) {
         message, topic, BoolConstants::TRUE, BoolConstants::FALSE);
     return;
   }
-  ESP_LOGD(TAG, "Received message '%s' from topic '%s', switching pin %d to %s",
+  ESP_LOGI(TAG, "Received message '%s' from topic '%s', switching pin %d to %s",
            message, topic, pin, levelLog);
   digitalWrite(pin, level);
 }

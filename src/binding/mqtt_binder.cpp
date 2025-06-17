@@ -3,6 +3,7 @@
 #include <esp_log.h>
 
 #include "plugins/bool_to_pin.hpp"
+#include "plugins/pin_to_bool.hpp"
 
 static const char *TAG = "MqttBinder";
 
@@ -19,7 +20,7 @@ void MqttBinder::setup(const Settings &settings) {
   connector.setup(settings);
 
   for (const Binding &binding : settings.bindings) {
-      addPlugin(binding);
+    addPlugin(binding);
   }
 
   pubSubClient.setCallback(
@@ -29,25 +30,38 @@ void MqttBinder::setup(const Settings &settings) {
 
 void MqttBinder::addPlugin(const Binding &binding) {
   switch (binding.direction) {
-    case MqttDirection::SUBSCRIBE:
-      switch (binding.type) {
-        case MqttType::BOOL:
-        ESP_LOGD(TAG, "Creating BoolToPin plugin for pin %d and topic '%s'", binding.pin, binding.topic);
-        plugins.emplace_back(std::unique_ptr<BindingPlugin>(
-          new BoolToPin(pubSubClient, binding.pin, binding.topic)
-        ));
-        break;
-        case MqttType::FLOAT:
-        //TODO
-        break;
-        case MqttType::TIC:
-        //TODO
-        break;
-      }
+  case MqttDirection::SUBSCRIBE:
+    switch (binding.type) {
+    case MqttType::BOOL:
+      ESP_LOGD(TAG, "Creating BoolToPin plugin for pin %d and topic '%s'",
+               binding.pin, binding.topic);
+      plugins.emplace_back(std::unique_ptr<BindingPlugin>(
+          new BoolToPin(pubSubClient, binding.pin, binding.topic)));
       break;
-    case MqttDirection::PUBLISH:
-    //TODO
+    case MqttType::FLOAT:
+      // TODO
       break;
+    case MqttType::TIC:
+      // TODO
+      break;
+    }
+    break;
+  case MqttDirection::PUBLISH:
+    switch (binding.type) {
+    case MqttType::BOOL:
+      ESP_LOGD(TAG, "Creating BoolToPin plugin for pin %d and topic '%s'",
+               binding.pin, binding.topic);
+      plugins.emplace_back(std::unique_ptr<BindingPlugin>(
+          new PinToBool(pubSubClient, binding.pin, binding.topic)));
+      break;
+    case MqttType::FLOAT:
+      // TODO
+      break;
+    case MqttType::TIC:
+      // TODO
+      break;
+    }
+    break;
   }
 }
 
