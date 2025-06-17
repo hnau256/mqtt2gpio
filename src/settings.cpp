@@ -55,7 +55,7 @@ void Binding::fromJson(const JsonObject &obj) {
   }
 
   if (typeStr == JsonKeys::TYPE_BOOL)
-    type = MqttType::FLOAT;
+    type = MqttType::BOOL;
   else if (typeStr == JsonKeys::TYPE_FLOAT)
     type = MqttType::FLOAT;
   else if (typeStr == JsonKeys::TYPE_TIC)

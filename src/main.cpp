@@ -1,4 +1,3 @@
-#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
 
 #include <Arduino.h>
@@ -6,7 +5,7 @@
 #include "initialize_filesystem.hpp"
 #include "initialize_mdns.hpp"
 #include "initialize_wifi.hpp"
-#include "mqtt_binder.hpp"
+#include "binding/mqtt_binder.hpp"
 #include "settings_repository.hpp"
 #include "web_server.hpp"
 
@@ -47,7 +46,7 @@ void setup() {
   settingsRepository.setup();
 
   server.setup();
-  
+
   const Settings& settings = settingsRepository.getSettings();
   initializeMDns(settings);
   mqtt.setup(settings);
