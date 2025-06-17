@@ -1,6 +1,6 @@
 #include "settings_repository.hpp"
 
-#include "esp_log.h"
+#include <esp_log.h>
 #include <LittleFS.h>
 
 const char *const SETTINGS_FILENAME = "/settings.json";
