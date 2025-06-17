@@ -1,11 +1,19 @@
 #include "mqtt_binder.hpp"
 
+#include "esp_log.h"
+
+static const char *TAG = "MqttBinder";
+
 MqttBinder::MqttBinder()  : pubSubClient(wifiClient), lastConnection(0) {}
 
 void MqttBinder::setup(
   const Settings& settings
 ) {
   this->settings = settings;
+  if (!settings.valid) {
+    ESP_LOGW(TAG, "Settings are not valid so no need to config bindings");
+    return;
+  }
   pubSubClient.setServer(settings.mqtt.address.c_str(), settings.mqtt.port);
   pubSubClient.setCallback(
       std::bind(&MqttBinder::callback, this, std::placeholders::_1,
@@ -31,6 +39,9 @@ void MqttBinder::callback(char *topic, byte *payload, unsigned int length) {
 }
 
 void MqttBinder::loop() {
+  if (!settings.valid) {
+    return;
+  }
   if (!this->pubSubClient.connected()) {
     this->handleDisconnected();
   }

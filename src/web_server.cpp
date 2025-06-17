@@ -42,8 +42,8 @@ void WebServerHandler::handleSetSettingsAndRestart() {
 
   String body = server.arg("plain");
   Settings settings;
-  bool parseResult = settings.fromJson(body);
-  if (!parseResult) {
+  settings.fromJson(body);
+  if (!settings.valid) {
     Serial.println("Unable parse settings from: " + body);
     server.send(500, "application/json", "{\"error\":\"Unable parse settings\"}");
     return;

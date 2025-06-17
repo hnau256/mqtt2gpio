@@ -6,10 +6,12 @@
 const char *const SETTINGS_FILENAME = "/settings.json";
 static const char *TAG = "SettingsRepository";
 
+SettingsRepository::SettingsRepository() {}
+
 void SettingsRepository::setup() {
   File file = LittleFS.open(SETTINGS_FILENAME, "r");
   if (!file) {
-    ESP_LOGW(TAG, "Settings file '%s' not found, using default settings", SETTINGS_FILENAME);
+    ESP_LOGW(TAG, "Settings file '%s' not found", SETTINGS_FILENAME);
     return;
   }
 
@@ -19,13 +21,13 @@ void SettingsRepository::setup() {
   }
   file.close();
 
-  bool parseResult = settings.fromJson(jsonString);
-  if (!parseResult) {
-    ESP_LOGW(TAG, "Unable parse settings from json: '%s', using default settings", jsonString);
+  settings.fromJson(jsonString);
+  if (!settings.valid) {
+    ESP_LOGW(TAG, "Unable parse settings from json: '%s'", jsonString);
     return;
   }
 
-  ESP_LOGI(TAG, "Settings are parsed from file");
+  ESP_LOGD(TAG, "Initialized successfully");
 }
 
 const Settings &SettingsRepository::getSettings() const {
@@ -33,7 +35,6 @@ const Settings &SettingsRepository::getSettings() const {
 }
 
 bool SettingsRepository::updateSettings(const Settings &settings) {
-
   this->settings = settings;
   
   File file = LittleFS.open(SETTINGS_FILENAME, "w");

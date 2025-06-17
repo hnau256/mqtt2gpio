@@ -48,6 +48,7 @@ enum class MqttType {
 
 class MqttSettings {
 public:
+  bool valid;
   String address;
   uint16_t port;
   String user;
@@ -55,30 +56,32 @@ public:
   String clientId;
 
   MqttSettings();
-  bool fromJson(const JsonObject& obj);
+  void fromJson(const JsonObject& obj);
   void toJson(JsonObject& obj) const;
 };
 
 class Binding {
 public:
+  bool valid;
   MqttType type;
   uint8_t pin;
   String topic;
   MqttDirection direction;
 
   Binding();
-  bool fromJson(const JsonObject& obj);
+  void fromJson(const JsonObject& obj);
   void toJson(JsonObject& obj) const;
 };
 
 class Settings {
 public:
+  bool valid;
   String mdnsName;
   MqttSettings mqtt;
   std::vector<Binding> bindings;
 
   Settings(); 
-  bool fromJson(const String& jsonString);
+  void fromJson(const String& jsonString);
   String toJson() const;
 };
 

@@ -5,10 +5,10 @@
 
 class SettingsRepository {
 public:
+  SettingsRepository();
+
   void setup();
-
   const Settings &getSettings() const;
-
   bool updateSettings(const Settings &settings);
 
 private:
